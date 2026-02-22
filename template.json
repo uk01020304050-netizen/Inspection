@@ -1,0 +1,266 @@
+{
+  "version": 1,
+  "brand": {
+    "companyName": "Small Town Roosters",
+    "reportTitle": "Area Manager Franchise Inspection Report",
+    "documentCode": "STR-AM-AUD-01",
+    "versionLabel": "V4 – Corporate Franchise Edition",
+    "minimumComplianceRequired": "90%"
+  },
+  "sections": [
+    {
+      "id": "A",
+      "title": "A — Front of House & Customer Area",
+      "items": [
+        {
+          "id": "A1",
+          "text": "Shop window clean & presentable"
+        },
+        {
+          "id": "A2",
+          "text": "Shop front & signage clean"
+        },
+        {
+          "id": "A3",
+          "text": "Doors & handles clean"
+        },
+        {
+          "id": "A4",
+          "text": "Till area clean & organised"
+        },
+        {
+          "id": "A5",
+          "text": "Menu boards clean & up to date"
+        },
+        {
+          "id": "A6",
+          "text": "Floors clean & dry"
+        },
+        {
+          "id": "A7",
+          "text": "Bins clean & not overflowing"
+        }
+      ]
+    },
+    {
+      "id": "B",
+      "title": "B — Staff & Uniform",
+      "items": [
+        {
+          "id": "B8",
+          "text": "All staff in full uniform"
+        },
+        {
+          "id": "B9",
+          "text": "Hairnets / hats worn correctly"
+        },
+        {
+          "id": "B10",
+          "text": "Aprons clean & disposable aprons available"
+        },
+        {
+          "id": "B11",
+          "text": "No jewellery on hands (except plain ring)"
+        },
+        {
+          "id": "B12",
+          "text": "Staff hygiene standards acceptable"
+        }
+      ]
+    },
+    {
+      "id": "C",
+      "title": "C — Records & Documentation",
+      "items": [
+        {
+          "id": "C13",
+          "text": "Health & Safety folder available"
+        },
+        {
+          "id": "C14",
+          "text": "Cleaning schedules completed & signed"
+        },
+        {
+          "id": "C15",
+          "text": "Temperature records up to date"
+        },
+        {
+          "id": "C16",
+          "text": "Delivery & stock check records completed"
+        },
+        {
+          "id": "C17",
+          "text": "Accident book available"
+        },
+        {
+          "id": "C18",
+          "text": "Food allergen matrix available"
+        },
+        {
+          "id": "C19",
+          "text": "Level 2 Food Hygiene certificates on site"
+        }
+      ]
+    },
+    {
+      "id": "D",
+      "title": "D — Kitchen Cleanliness",
+      "items": [
+        {
+          "id": "D20",
+          "text": "Grill clean"
+        },
+        {
+          "id": "D21",
+          "text": "Fryer clean"
+        },
+        {
+          "id": "D22",
+          "text": "Behind grill & fryer clean"
+        },
+        {
+          "id": "D23",
+          "text": "Under fridges clean"
+        },
+        {
+          "id": "D24",
+          "text": "Work surfaces sanitised"
+        },
+        {
+          "id": "D25",
+          "text": "Cutting boards clean & colour-coded"
+        },
+        {
+          "id": "D26",
+          "text": "Sauces correctly labelled & in date"
+        }
+      ]
+    },
+    {
+      "id": "E",
+      "title": "E — Storage & Temperature Control",
+      "items": [
+        {
+          "id": "E27",
+          "text": "Fridges clean & organised"
+        },
+        {
+          "id": "E28",
+          "text": "Freezer clean & organised"
+        },
+        {
+          "id": "E29",
+          "text": "Cold room clean (if applicable)"
+        },
+        {
+          "id": "E30",
+          "text": "Raw & cooked food stored separately"
+        },
+        {
+          "id": "E31",
+          "text": "All food labelled (date & name)"
+        },
+        {
+          "id": "E32",
+          "text": "Stock rotation (FIFO) followed"
+        }
+      ]
+    },
+    {
+      "id": "F",
+      "title": "F — Hygiene & Safety",
+      "items": [
+        {
+          "id": "F33",
+          "text": "Hand wash station stocked"
+        },
+        {
+          "id": "F34",
+          "text": "Antibacterial spray available"
+        },
+        {
+          "id": "F35",
+          "text": "Cleaning cloths colour-coded & clean"
+        },
+        {
+          "id": "F36",
+          "text": "Mop bucket clean & empty after use"
+        },
+        {
+          "id": "F37",
+          "text": "Toilet clean & stocked"
+        },
+        {
+          "id": "F38",
+          "text": "No pests or pest activity"
+        }
+      ]
+    },
+    {
+      "id": "G",
+      "title": "G — Equipment",
+      "items": [
+        {
+          "id": "G39",
+          "text": "Ice cream freezer clean"
+        },
+        {
+          "id": "G40",
+          "text": "Ice cream machine clean"
+        },
+        {
+          "id": "G41",
+          "text": "Ice machine clean"
+        },
+        {
+          "id": "G42",
+          "text": "Alto-Shaam equipment operational"
+        },
+        {
+          "id": "G43",
+          "text": "All equipment safe & operational"
+        }
+      ]
+    },
+    {
+      "id": "H",
+      "title": "H — Staff Knowledge & Management",
+      "items": [
+        {
+          "id": "H44",
+          "text": "Staff know cooking process"
+        },
+        {
+          "id": "H45",
+          "text": "Staff understand food allergens"
+        },
+        {
+          "id": "H46",
+          "text": "Manager confident with allergen questions"
+        },
+        {
+          "id": "H47",
+          "text": "Emergency procedures understood"
+        }
+      ]
+    },
+    {
+      "id": "I",
+      "title": "I — Stock & Finance Check",
+      "items": [
+        {
+          "id": "I48",
+          "text": "Stock levels correct"
+        },
+        {
+          "id": "I49",
+          "text": "No expired stock"
+        },
+        {
+          "id": "I50",
+          "text": "Invoices & supplier bills filed"
+        }
+      ]
+    }
+  ]
+}

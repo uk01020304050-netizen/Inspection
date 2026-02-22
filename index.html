@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0b5fff" />
+  <title>Small Town Roosters — Inspection</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">✔</div>
+      <div>
+        <div class="title">Small Town Roosters</div>
+        <div class="subtitle" id="subtitle">Franchise inspection • Offline • Photos • Pass/Fail</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn ghost" id="btnInstall" hidden>Install</button>
+      <button class="btn ghost" id="btnSettings">Template</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <div class="card-row">
+        <div>
+          <h2>New inspection</h2>
+          <p class="muted">Create an inspection, tap Pass/Fail, add photos, and save. History stays on this iPad.</p>
+        </div>
+        <button class="btn primary" id="btnNew">Start</button>
+      </div>
+      <div class="grid-2">
+        <label class="field">
+          <span>Site / Branch name</span>
+          <input id="siteName" placeholder="e.g., Oxford Street" />
+        </label>
+        <label class="field">
+          <span>Inspector name</span>
+          <input id="inspectorName" placeholder="e.g., Ali" />
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-row">
+        <h2>History</h2>
+        <div class="row-gap">
+          <button class="btn" id="btnExportAll">Export all (JSON)</button>
+          <label class="btn file">
+            Import (JSON)
+            <input type="file" id="importFile" accept="application/json" />
+          </label>
+        </div>
+      </div>
+      <div id="historyList" class="history-list"></div>
+      <div id="historyEmpty" class="muted">No inspections saved yet.</div>
+    </section>
+  </main>
+
+  <!-- Editor modal -->
+  <dialog id="editor">
+    <form method="dialog" class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="editTitle">Inspection</div>
+          <div class="muted" id="editMeta"></div>
+        </div>
+        <div class="row-gap">
+          <button class="btn ghost" value="close">Close</button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="grid-2">
+          <label class="field">
+            <span>Site / Branch name</span>
+            <input id="editSite" />
+          </label>
+          <label class="field">
+            <span>Inspector</span>
+            <input id="editInspector" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span>General notes</span>
+          <textarea id="editGeneralNotes" rows="3" placeholder="Any overall notes..."></textarea>
+        </label>
+
+        <div id="sections"></div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="left">
+          <button type="button" class="btn danger" id="btnDelete">Delete</button>
+        </div>
+        <div class="right row-gap">
+          <button type="button" class="btn" id="btnPrint">Print / Save PDF</button>
+          <button type="button" class="btn primary" id="btnSave">Save</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Template modal -->
+  <dialog id="tmpl">
+    <form method="dialog" class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Template</div>
+          <div class="muted">Edit sections/questions (advanced). You can paste your PDF questions here later.</div>
+        </div>
+        <button class="btn ghost" value="close">Close</button>
+      </div>
+      <div class="modal-body">
+        <p class="muted">Tip: Keep IDs unique. After saving, start a new inspection to use the updated template.</p>
+        <textarea id="templateEditor" class="code" rows="18" spellcheck="false"></textarea>
+      </div>
+      <div class="modal-footer">
+        <div class="left muted" id="tmplStatus"></div>
+        <div class="right row-gap">
+          <button type="button" class="btn" id="btnResetTemplate">Reset</button>
+          <button type="button" class="btn primary" id="btnSaveTemplate">Save template</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
