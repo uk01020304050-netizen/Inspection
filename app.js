@@ -6,6 +6,37 @@
 
 const $ = (id) => document.getElementById(id);
 
+// --- Branding (logo) ---
+// Supports either:
+// 1) template.brand.logoDataUrl = "data:image/...base64,..."
+// 2) a file named logo.png placed in the site root
+async function applyBranding(template){
+  const img = $("logoImg");
+  const fallback = $("logoFallback");
+  if(!img || !fallback) return;
+
+  const dataUrl = template?.brand?.logoDataUrl;
+  if(typeof dataUrl === "string" && dataUrl.startsWith("data:image")){
+    img.src = dataUrl;
+    img.hidden = false;
+    fallback.hidden = true;
+    return;
+  }
+
+  try{
+    const res = await fetch("./logo.png", {cache:"no-store"});
+    if(res.ok){
+      img.src = `./logo.png?v=${Date.now()}`;
+      img.hidden = false;
+      fallback.hidden = true;
+      return;
+    }
+  }catch(_){/* ignore */}
+
+  img.hidden = true;
+  fallback.hidden = false;
+}
+
 const DB_NAME = "inspection_pwa_db";
 const DB_VER = 1;
 const STORE = "inspections";
@@ -99,6 +130,8 @@ async function getTemplate(){
 
 async function saveTemplate(t){
   await dbPut(STORE_TEMPLATE, {id:"current", data:t, updatedAt: nowISO()});
+  // Update header branding immediately
+  applyBranding(t);
 }
 
 function blankResponses(template){
@@ -331,7 +364,23 @@ async function openEditor(id){
 
   $("btnPrint").onclick = async () => {
     await persistFromEditor(ins, template, {silent:true});
+    // iOS/Safari sometimes prints the dark modal overlay (first pages look grey)
+    // if the editor dialog is open. Close it for printing and restore after.
+    const dlg = $("editor");
+    const wasOpen = !!dlg?.open;
+    if(wasOpen) dlg.close();
+
     await buildPrintView(ins, template);
+
+    const after = () => {
+      window.removeEventListener("afterprint", after);
+      const host = document.getElementById("printHost");
+      if(host) host.remove();
+      if(wasOpen) dlg.showModal();
+    };
+    window.addEventListener("afterprint", after);
+
+    await new Promise(r => setTimeout(r, 50));
     window.print();
   };
 
@@ -383,9 +432,24 @@ async function buildPrintView(ins, template){
   const company = template.brand?.companyName || "Company";
   const title = template.brand?.reportTitle || "Inspection Report";
 
+  // Optional logo in PDF
+  let logoSrc = "";
+  const dataUrl = template?.brand?.logoDataUrl;
+  if(typeof dataUrl === "string" && dataUrl.startsWith("data:image")){
+    logoSrc = dataUrl;
+  }else{
+    try{
+      const res = await fetch("./logo.png", {cache:"no-store"});
+      if(res.ok) logoSrc = `./logo.png?v=${Date.now()}`;
+    }catch(_){/* ignore */}
+  }
+
   host.innerHTML = `
     <div class="print-card">
-      <div class="print-title">${escapeHTML(company)} — ${escapeHTML(title)}</div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo" style="width:38px;height:38px;border-radius:10px;object-fit:cover;border:1px solid #eee;"/>` : ""}
+        <div class="print-title">${escapeHTML(company)} — ${escapeHTML(title)}</div>
+      </div>
       <div class="print-meta">
         <div><strong>Site:</strong> ${escapeHTML(ins.siteName || "")}</div>
         <div><strong>Inspector:</strong> ${escapeHTML(ins.inspectorName || "")}</div>
@@ -494,6 +558,7 @@ if("serviceWorker" in navigator){
 }
 
 (async function init(){
-  await getTemplate();
+  const t = await getTemplate();
+  await applyBranding(t);
   await refreshHistory();
 })();

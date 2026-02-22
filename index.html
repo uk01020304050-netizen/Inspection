@@ -11,7 +11,9 @@
 <body>
   <header class="app-header">
     <div class="brand">
-      <div class="logo" aria-hidden="true">✔</div>
+      <!-- Logo: will show logo.png if present (or template.brand.logoDataUrl), otherwise fallback checkmark -->
+      <img id="logoImg" class="logo-img" alt="Logo" hidden />
+      <div id="logoFallback" class="logo" aria-hidden="true">✔</div>
       <div>
         <div class="title">Small Town Roosters</div>
         <div class="subtitle" id="subtitle">Franchise inspection • Offline • Photos • Pass/Fail</div>

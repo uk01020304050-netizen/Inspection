@@ -36,6 +36,11 @@ body{
   display:flex; align-items:center; justify-content:center;
   font-weight:800; box-shadow: var(--shadow);
 }
+.logo-img{
+  width:42px; height:42px; border-radius:12px;
+  object-fit:cover;
+  box-shadow: var(--shadow);
+}
 .title{font-weight:800; letter-spacing:.2px}
 .subtitle{font-size:12px; color:var(--muted)}
 .header-actions{display:flex; gap:10px; align-items:center}
@@ -171,6 +176,9 @@ dialog{
 @media print{
   body{background:white; color:#111}
   .app-header,.container{display:none}
+  /* Hide dialogs/overlays so only the printHost content prints */
+  dialog{display:none !important}
+  dialog::backdrop{display:none !important}
   .print-only{display:block; padding:18px}
   .print-card{border:1px solid #ddd; padding:14px; border-radius:12px; margin-bottom:12px}
   .print-title{font-weight:800; font-size:18px; margin-bottom:6px}
