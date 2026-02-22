@@ -174,18 +174,30 @@ dialog{
 .code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12px; line-height:1.35}
 .print-only{display:none}
 @media print{
+  *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body{background:white; color:#111}
   .app-header,.container{display:none}
   /* Hide dialogs/overlays so only the printHost content prints */
   dialog{display:none !important}
   dialog::backdrop{display:none !important}
-  .print-only{display:block; padding:18px}
+  .print-only{display:block; padding:18px; background:#fff}
   .print-card{border:1px solid #ddd; padding:14px; border-radius:12px; margin-bottom:12px}
-  .print-title{font-weight:800; font-size:18px; margin-bottom:6px}
+  .print-brand{display:flex; align-items:center; gap:10px; margin-bottom:8px}
+  .print-logo{width:38px;height:38px;border-radius:10px;object-fit:contain;border:1px solid #eee; background:#fff}
+  .print-logo-fallback{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;border:1px solid #eee;background:#f6f6f6;font-weight:900}
+  .print-company{font-weight:900; font-size:18px; line-height:1.2}
+  .print-report{font-weight:700; font-size:13px; color:#111; margin-top:2px}
   .print-meta{color:#444; font-size:12px; margin-bottom:10px}
   .print-sec{margin-top:12px}
-  .print-sec h3{margin:0 0 6px 0}
+  .print-sec-title{margin:0 0 6px 0; color:#b91c1c}
   .print-item{border-top:1px solid #eee; padding-top:8px; margin-top:8px}
+  .print-item-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
+  .print-item-title{flex:1; color:#111}
+  .print-choices{display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end}
+  .p-pill{border:1px solid #ddd; border-radius:999px; padding:3px 10px; font-size:12px; background:#fff; color:#111; min-width:44px; text-align:center}
+  .p-pill.sel.ok{border-color:rgba(33,197,93,.95); box-shadow:0 0 0 2px rgba(33,197,93,.16) inset}
+  .p-pill.sel.bad{border-color:rgba(255,59,48,.95); box-shadow:0 0 0 2px rgba(255,59,48,.16) inset}
+  .p-pill.sel.na{border-color:rgba(100,116,139,.95); box-shadow:0 0 0 2px rgba(100,116,139,.16) inset}
   .print-photos{display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-top:8px}
   .print-photos img{width:100%; height:auto; border:1px solid #eee; border-radius:10px}
   .badge{border:1px solid #ddd; color:#111; background:#f6f6f6}

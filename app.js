@@ -220,10 +220,18 @@ async function refreshHistory(){
 
 async function createInspection(){
   const template = await getTemplate();
+  const siteName = $("siteName").value.trim();
+  const inspectorName = $("inspectorName").value.trim();
+
+  // Prevent blank headers in the PDF by requiring these fields.
+  if(!siteName || !inspectorName){
+    alert('Please enter both "Site / Branch name" and "Inspector name" then press Start.');
+    return;
+  }
   const ins = {
     id: uid("ins"),
-    siteName: $("siteName").value.trim(),
-    inspectorName: $("inspectorName").value.trim(),
+    siteName,
+    inspectorName,
     createdAt: nowISO(),
     updatedAt: nowISO(),
     generalNotes: "",
@@ -446,12 +454,17 @@ async function buildPrintView(ins, template){
 
   host.innerHTML = `
     <div class="print-card">
-      <div style="display:flex; align-items:center; gap:10px;">
-        ${logoSrc ? `<img src="${logoSrc}" alt="logo" style="width:38px;height:38px;border-radius:10px;object-fit:cover;border:1px solid #eee;"/>` : ""}
-        <div class="print-title">${escapeHTML(company)} — ${escapeHTML(title)}</div>
+      <div class="print-brand">
+        <div class="print-logo-wrap">
+          ${logoSrc ? `<img src="${logoSrc}" alt="logo" class="print-logo"/>` : `<div class="print-logo-fallback">✓</div>`}
+        </div>
+        <div>
+          <div class="print-company">${escapeHTML(company)}</div>
+          <div class="print-report">${escapeHTML(title)}</div>
+        </div>
       </div>
       <div class="print-meta">
-        <div><strong>Site:</strong> ${escapeHTML(ins.siteName || "")}</div>
+        <div><strong>Site / Branch:</strong> ${escapeHTML(ins.siteName || "")}</div>
         <div><strong>Inspector:</strong> ${escapeHTML(ins.inspectorName || "")}</div>
         <div><strong>Created:</strong> ${fmtDate(ins.createdAt)} • <strong>Updated:</strong> ${fmtDate(ins.updatedAt)}</div>
         <div style="margin-top:6px;">
@@ -466,16 +479,23 @@ async function buildPrintView(ins, template){
   for(const sec of template.sections){
     const secDiv = document.createElement("div");
     secDiv.className = "print-card print-sec";
-    secDiv.innerHTML = `<h3>${escapeHTML(sec.title)}</h3>`;
+    secDiv.innerHTML = `<h3 class="print-sec-title">${escapeHTML(sec.title)}</h3>`;
     for(const item of sec.items){
       const r = ins.responses[item.id] || {result:"", comment:"", photos:["","","",""]};
-      const status = r.result || "—";
+      const status = (r.result || "N/A").toString();
+      const st = status.trim().toUpperCase();
       const photos = (r.photos||[]).filter(Boolean);
       const itemHTML = document.createElement("div");
       itemHTML.className = "print-item";
       itemHTML.innerHTML = `
-        <div><strong>${escapeHTML(item.text)}</strong></div>
-        <div><span class="badge">${escapeHTML(status)}</span></div>
+        <div class="print-item-head">
+          <div class="print-item-title"><strong>${escapeHTML(item.id)} — ${escapeHTML(item.text)}</strong></div>
+          <div class="print-choices" aria-label="Result">
+            <span class="p-pill ${st==='PASS'?'sel ok':''}">Pass</span>
+            <span class="p-pill ${st==='FAIL'?'sel bad':''}">Fail</span>
+            <span class="p-pill ${st==='N/A' || st==='NA' ?'sel na':''}">N/A</span>
+          </div>
+        </div>
         ${r.comment ? `<div><strong>Notes:</strong> ${escapeHTML(r.comment).replace(/\n/g,"<br>")}</div>` : ""}
         ${photos.length ? `<div class="print-photos">${photos.slice(0,6).map(p=>`<img src="${p}" alt="photo">`).join("")}</div>` : ""}
       `;
