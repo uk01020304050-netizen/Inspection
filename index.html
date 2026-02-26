@@ -100,6 +100,7 @@
           <button type="button" class="btn danger" id="btnDelete">Delete</button>
         </div>
         <div class="right row-gap">
+          <button type="button" class="btn" id="btnGenPdf">Generate Professional PDF</button>
           <button type="button" class="btn" id="btnPrint">Print / Save PDF</button>
           <button type="button" class="btn primary" id="btnSave">Save</button>
         </div>
@@ -130,63 +131,7 @@
       </div>
     </form>
   </dialog>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="app.js"></script>
-  <button id="generatePDFBtn" style="
-position: fixed;
-bottom: 20px;
-right: 20px;
-padding: 12px 18px;
-background: #000;
-color: #fff;
-border-radius: 8px;
-border: none;
-font-size: 14px;
-z-index: 9999;
-">
-Generate Professional PDF
-</button>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-<script>
-document.getElementById("generatePDFBtn").addEventListener("click", async function () {
-
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF("p", "mm", "a4");
-
-  const pageWidth = 210;
-  const pageHeight = 297;
-  let yOffset = 0;
-
-  const content = document.querySelector(".container");
-
-  const canvas = await html2canvas(content, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: "#ffffff"
-  });
-
-  const imgData = canvas.toDataURL("image/jpeg", 1.0);
-  const imgWidth = pageWidth;
-  const imgHeight = canvas.height * imgWidth / canvas.width;
-
-  let heightLeft = imgHeight;
-  let position = 0;
-
-  pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
-
-  while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-  }
-
-  pdf.save("SmallTownRoosterz_Inspection.pdf");
-});
-</script>
 </body>
 </html>

@@ -174,33 +174,23 @@ dialog{
 .code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12px; line-height:1.35}
 .print-only{display:none}
 @media print{
-  /* A4 output (clean white background) */
-  @page { size: A4; margin: 12mm; }
-
   *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-
-  html, body{ background:#fff !important; color:#111 !important; margin:0 !important; padding:0 !important; }
-
-  /* Print ONLY the dedicated printable layout (prevents dark UI / grey pages) */
-  body *{ visibility:hidden !important; }
-  .print-only, .print-only *{ visibility:visible !important; }
-  .print-only{ position:absolute; left:0; top:0; width:100%; display:block !important; padding:18px; background:#fff !important; }
-
-  .app-header,.container{display:none !important}
+  body{background:white; color:#111}
+  .app-header,.container{display:none}
   /* Hide dialogs/overlays so only the printHost content prints */
   dialog{display:none !important}
   dialog::backdrop{display:none !important}
-
-  .print-card{border:1px solid #ddd; padding:14px; border-radius:12px; margin-bottom:12px; break-inside:avoid; page-break-inside:avoid; }
+  .print-only{display:block; padding:18px; background:#fff}
+  .print-card{border:1px solid #ddd; padding:14px; border-radius:12px; margin-bottom:12px}
   .print-brand{display:flex; align-items:center; gap:10px; margin-bottom:8px}
   .print-logo{width:38px;height:38px;border-radius:10px;object-fit:contain;border:1px solid #eee; background:#fff}
   .print-logo-fallback{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;border:1px solid #eee;background:#f6f6f6;font-weight:900}
   .print-company{font-weight:900; font-size:18px; line-height:1.2}
   .print-report{font-weight:700; font-size:13px; color:#111; margin-top:2px}
   .print-meta{color:#444; font-size:12px; margin-bottom:10px}
-  .print-sec{margin-top:12px; break-inside:avoid; page-break-inside:avoid; }
+  .print-sec{margin-top:12px}
   .print-sec-title{margin:0 0 6px 0; color:#b91c1c}
-  .print-item{border-top:1px solid #eee; padding-top:8px; margin-top:8px; break-inside:avoid; page-break-inside:avoid; }
+  .print-item{border-top:1px solid #eee; padding-top:8px; margin-top:8px}
   .print-item-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
   .print-item-title{flex:1; color:#111}
   .print-choices{display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end}
@@ -208,13 +198,7 @@ dialog{
   .p-pill.sel.ok{border-color:rgba(33,197,93,.95); box-shadow:0 0 0 2px rgba(33,197,93,.16) inset}
   .p-pill.sel.bad{border-color:rgba(255,59,48,.95); box-shadow:0 0 0 2px rgba(255,59,48,.16) inset}
   .p-pill.sel.na{border-color:rgba(100,116,139,.95); box-shadow:0 0 0 2px rgba(100,116,139,.16) inset}
-  /* Use flex for better page-break behavior on iPad/Safari */
-  .print-photos{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; break-inside:avoid; page-break-inside:avoid; }
-  .print-photos img{flex:0 0 calc(33.333% - 6px); width:100%; height:auto; border:1px solid #eee; border-radius:10px; break-inside:avoid; page-break-inside:avoid; }
-
-  /* iPad/Safari PDF engine sometimes cuts 3-column grids; 2 columns is safer */
-  @supports (-webkit-touch-callout: none) {
-    .print-photos img{ flex-basis: calc(50% - 6px); }
-  }
+  .print-photos{display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-top:8px}
+  .print-photos img{width:100%; height:auto; border:1px solid #eee; border-radius:10px}
   .badge{border:1px solid #ddd; color:#111; background:#f6f6f6}
 }

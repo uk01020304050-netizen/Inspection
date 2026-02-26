@@ -392,7 +392,314 @@ async function openEditor(id){
     window.print();
   };
 
+  // Professional PDF (no page-splitting / no grey overlay)
+  $("btnGenPdf").onclick = async () => {
+    await persistFromEditor(ins, template, {silent:true});
+    try {
+      $("btnGenPdf").disabled = true;
+      await generateProfessionalPdf(ins, template);
+    } catch (e) {
+      console.error(e);
+      alert("PDF generate nahi hua. Please dobara try karein.");
+    } finally {
+      $("btnGenPdf").disabled = false;
+    }
+  };
+
   $("editor").showModal();
+}
+
+// --------------------------
+// Professional PDF generator
+// --------------------------
+
+function pdfRgb(hex){
+  const h = String(hex || "").replace("#", "");
+  const r = parseInt(h.slice(0,2),16) || 0;
+  const g = parseInt(h.slice(2,4),16) || 0;
+  const b = parseInt(h.slice(4,6),16) || 0;
+  return [r,g,b];
+}
+
+function safeText(v){
+  return (v == null ? "" : String(v));
+}
+
+function splitLines(pdf, text, maxW){
+  return pdf.splitTextToSize(safeText(text), maxW);
+}
+
+async function getLogoDataUrl(template){
+  if(template?.brand?.logoDataUrl && String(template.brand.logoDataUrl).startsWith("data:")) return template.brand.logoDataUrl;
+  const img = document.getElementById("logoImg");
+  if(img?.src && String(img.src).startsWith("data:")) return img.src;
+  try{
+    const r = await fetch("logo.png", {cache:"no-cache"});
+    if(!r.ok) return null;
+    const blob = await r.blob();
+    return await new Promise((resolve,reject)=>{
+      const fr = new FileReader();
+      fr.onload = ()=>resolve(String(fr.result));
+      fr.onerror = reject;
+      fr.readAsDataURL(blob);
+    });
+  }catch{ return null; }
+}
+
+function drawStatusPills(pdf, xRight, y, status){
+  const gap = 2.2;
+  const pill = (label, selected, theme) => {
+    const padX = 3.2;
+    const font = 9.5;
+    pdf.setFontSize(font);
+    const w = pdf.getTextWidth(label) + padX*2;
+    const h = 7.6;
+    const r = h/2;
+    const border = selected ? theme : "#9ca3af";
+    const fill = selected ? theme : "#ffffff";
+    const txt = selected ? "#ffffff" : "#111827";
+    return {label,w,h,r,border,fill,txt};
+  };
+  const pPass = pill("Pass", status==="pass", "#16a34a");
+  const pFail = pill("Fail", status==="fail", "#dc2626");
+  const pNA   = pill("N/A",  status==="na",   "#6b7280");
+  const total = pPass.w + pFail.w + pNA.w + gap*2;
+  let x = xRight - total;
+
+  const draw = (p) => {
+    pdf.setDrawColor(...pdfRgb(p.border));
+    pdf.setFillColor(...pdfRgb(p.fill));
+    pdf.roundedRect(x, y, p.w, p.h, p.r, p.r, "FD");
+    pdf.setTextColor(...pdfRgb(p.txt));
+    pdf.setFont("helvetica","normal");
+    pdf.setFontSize(9.5);
+    pdf.text(p.label, x + 3.2, y + 5.6);
+    x += p.w + gap;
+  };
+  draw(pPass); draw(pFail); draw(pNA);
+}
+
+function addFittedImage(pdf, dataUrl, x, y, w, h){
+  // Keep aspect ratio, fit inside box
+  try{
+    const props = pdf.getImageProperties(dataUrl);
+    const ratio = props.width / props.height;
+    let dw = w;
+    let dh = dw / ratio;
+    if(dh > h){
+      dh = h;
+      dw = dh * ratio;
+    }
+    const cx = x + (w - dw)/2;
+    const cy = y + (h - dh)/2;
+    pdf.addImage(dataUrl, "JPEG", cx, cy, dw, dh);
+  }catch(e){
+    console.warn("Image render failed", e);
+  }
+}
+
+async function generateProfessionalPdf(ins, template){
+  if(!window.jspdf?.jsPDF){
+    alert("PDF library load nahi hui. Please page refresh karein.");
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({orientation:"p", unit:"mm", format:"a4"});
+  const W = 210, H = 297, M = 12;
+  const contentW = W - M*2;
+
+  const brand = template?.brand?.name || "Small Town Roosters";
+  const logo = await getLogoDataUrl(template);
+
+  // counts
+  let pass=0, fail=0, na=0;
+  for(const sec of (template.sections||[])){
+    for(const it of (sec.items||[])){
+      const st = ins.responses?.[it.id]?.status || "na";
+      if(st==="pass") pass++; else if(st==="fail") fail++; else na++;
+    }
+  }
+
+  // Cover
+  const hy = 14;
+  if(logo){ try{ pdf.addImage(logo, "PNG", M, hy-6, 18, 18);}catch{} }
+  pdf.setFont("helvetica","bold");
+  pdf.setFontSize(18);
+  pdf.setTextColor(17,24,39);
+  pdf.text(brand, M+22, hy+4);
+  pdf.setFont("helvetica","normal");
+  pdf.setFontSize(12);
+  pdf.text("Area Manager Franchise Inspection Report", M+22, hy+12);
+  pdf.setDrawColor(229,231,235);
+  pdf.line(M, hy+18, W-M, hy+18);
+
+  const infoY = hy+30;
+  const colGap = 6;
+  const colW = (contentW-colGap)/2;
+  const created = ins.createdAt ? new Date(ins.createdAt).toLocaleString() : "";
+  const updated = ins.updatedAt ? new Date(ins.updatedAt).toLocaleString() : "";
+
+  pdf.setFontSize(11);
+  pdf.setTextColor(107,114,128);
+  pdf.text("Site / Branch", M, infoY);
+  pdf.text("Inspector", M+colW+colGap, infoY);
+  pdf.setTextColor(17,24,39);
+  pdf.setFont("helvetica","bold");
+  pdf.text(ins.siteName || "-", M, infoY+7);
+  pdf.text(ins.inspectorName || "-", M+colW+colGap, infoY+7);
+
+  pdf.setFont("helvetica","normal");
+  pdf.setTextColor(107,114,128);
+  pdf.text("Created", M, infoY+18);
+  pdf.text("Last updated", M+colW+colGap, infoY+18);
+  pdf.setTextColor(17,24,39);
+  pdf.text(created || "-", M, infoY+25);
+  pdf.text(updated || "-", M+colW+colGap, infoY+25);
+
+  pdf.setTextColor(107,114,128);
+  pdf.text("Summary", M, infoY+38);
+  pdf.setTextColor(17,24,39);
+  pdf.setFont("helvetica","bold");
+  pdf.text(`Pass: ${pass}   Fail: ${fail}   N/A: ${na}`, M, infoY+46);
+  pdf.setFont("helvetica","normal");
+
+  // General notes
+  const notes = safeText(ins.generalNotes||"").trim();
+  if(notes){
+    pdf.setFontSize(11);
+    pdf.setTextColor(107,114,128);
+    pdf.text("General notes", M, infoY+60);
+    pdf.setTextColor(17,24,39);
+    const lines = splitLines(pdf, notes, contentW);
+    pdf.text(lines, M, infoY+68);
+  }
+
+  // Sections
+  for(const sec of (template.sections||[])){
+    pdf.addPage();
+    let y = M;
+
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(14);
+    pdf.setTextColor(...pdfRgb("#dc2626"));
+    pdf.text(sec.title || sec.id || "Section", M, y);
+    y += 7;
+    pdf.setDrawColor(229,231,235);
+    pdf.line(M, y, W-M, y);
+    y += 6;
+
+    for(const item of (sec.items||[])){
+      const r = ins.responses?.[item.id] || {status:"na", notes:"", photos:[]};
+      const st = r.status || "na";
+      const itemNotes = safeText(r.notes||"").trim();
+      const noteLines = itemNotes ? splitLines(pdf, itemNotes, contentW-14) : ["-"];
+      const noteH = Math.max(6, noteLines.length*4.2);
+
+      const photos = (r.photos||[]).filter(Boolean);
+      const chunk = photos.slice(0,4);
+      const hasPhotos = chunk.length>0;
+      const photoBoxH = 60;
+      const photoGap = 6;
+      const rows = chunk.length<=2 ? 1 : 2;
+      const photosH = hasPhotos ? (rows*photoBoxH + (rows-1)*photoGap) : 0;
+
+      const blockH = 8 + 10 + noteH + (hasPhotos ? (8 + photosH) : 0) + 8;
+      if(y + blockH > H - M){
+        pdf.addPage();
+        y = M;
+      }
+
+      // Item title
+      pdf.setFont("helvetica","bold");
+      pdf.setFontSize(12);
+      pdf.setTextColor(17,24,39);
+      pdf.text(item.label || item.id, M, y);
+      drawStatusPills(pdf, W-M, y-5.2, st);
+      y += 8;
+
+      // Notes
+      pdf.setFont("helvetica","bold");
+      pdf.setFontSize(10);
+      pdf.setTextColor(107,114,128);
+      pdf.text("Notes:", M, y);
+      pdf.setFont("helvetica","normal");
+      pdf.setTextColor(17,24,39);
+      pdf.text(noteLines, M+14, y);
+      y += noteH + 4;
+
+      // Photos grid (max 4)
+      if(hasPhotos){
+        pdf.setFont("helvetica","bold");
+        pdf.setFontSize(10);
+        pdf.setTextColor(107,114,128);
+        pdf.text("Photos:", M, y);
+        y += 6;
+
+        const boxW = (contentW - photoGap)/2;
+        let ix = M;
+        let iy = y;
+        for(let i=0;i<chunk.length;i++){
+          pdf.setDrawColor(229,231,235);
+          pdf.roundedRect(ix, iy, boxW, photoBoxH, 4, 4, "S");
+          addFittedImage(pdf, chunk[i], ix, iy, boxW, photoBoxH);
+          if(i%2===0) ix = M + boxW + photoGap;
+          else { ix = M; iy += photoBoxH + photoGap; }
+        }
+
+        y += photosH + 6;
+      }
+
+      // divider
+      pdf.setDrawColor(243,244,246);
+      pdf.line(M, y, W-M, y);
+      y += 6;
+
+      // If more than 4 photos, continuation pages
+      if(photos.length > 4){
+        const rest = photos.slice(4);
+        for(let off=0; off<rest.length; off+=4){
+          const more = rest.slice(off, off+4);
+          pdf.addPage();
+          let cy = M;
+          pdf.setFont("helvetica","bold");
+          pdf.setFontSize(12);
+          pdf.setTextColor(17,24,39);
+          pdf.text(item.label || item.id, M, cy);
+          drawStatusPills(pdf, W-M, cy-5.2, st);
+          cy += 8;
+          pdf.setFont("helvetica","normal");
+          pdf.setFontSize(10);
+          pdf.setTextColor(107,114,128);
+          pdf.text("Photos (continued)", M, cy);
+          cy += 6;
+          const boxW = (contentW - 6)/2;
+          const boxH = 60;
+          const gap = 6;
+          let ix = M;
+          let iy = cy;
+          for(let i=0;i<more.length;i++){
+            pdf.setDrawColor(229,231,235);
+            pdf.roundedRect(ix, iy, boxW, boxH, 4, 4, "S");
+            addFittedImage(pdf, more[i], ix, iy, boxW, boxH);
+            if(i%2===0) ix = M + boxW + gap;
+            else { ix = M; iy += boxH + gap; }
+          }
+        }
+      }
+    }
+  }
+
+  // Page numbers
+  const pages = pdf.getNumberOfPages();
+  for(let i=1;i<=pages;i++){
+    pdf.setPage(i);
+    pdf.setFontSize(9);
+    pdf.setTextColor(156,163,175);
+    pdf.text(`${i} / ${pages}`, W-M, H-10, {align:"right"});
+  }
+
+  const safeName = (ins.siteName || "Inspection").replace(/[^a-z0-9\-_\s]/gi, "").trim().slice(0,40) || "Inspection";
+  pdf.save(`${safeName}_Inspection_Report.pdf`);
 }
 
 async function persistFromEditor(ins, template, {silent}){

@@ -1,9 +1,12 @@
-const CACHE_NAME = "inspection-pwa-v2";
+const CACHE_NAME = "inspection-pwa-v3";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
+  "./logo.png",
+  "./icon-192.png",
+  "./icon-512.png",
   "./template.json",
   "./manifest.json"
 ];
