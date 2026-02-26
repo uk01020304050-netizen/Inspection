@@ -201,4 +201,14 @@ dialog{
   .print-photos{display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-top:8px}
   .print-photos img{width:100%; height:auto; border:1px solid #eee; border-radius:10px}
   .badge{border:1px solid #ddd; color:#111; background:#f6f6f6}
+
+  /* Force true A4 size + stop image blocks from splitting across pages */
+  @page{ size: A4; margin: 12mm; }
+  .print-report, .print-sec, .print-item, .print-photos, .print-photos img{
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  /* Cleaner report: each main section starts on new page */
+  .print-sec{ break-before: page; }
+  .print-sec:first-of-type{ break-before: auto; }
 }

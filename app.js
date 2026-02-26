@@ -512,10 +512,16 @@ async function generateProfessionalPdf(ins, template){
   const logo = await getLogoDataUrl(template);
 
   // counts
+  // NOTE: the app stores the answer as `result` (pass/fail/na) and notes in `comment`.
+  // Some older drafts used `status/notes` which caused PDFs to show blanks.
   let pass=0, fail=0, na=0;
   for(const sec of (template.sections||[])){
     for(const it of (sec.items||[])){
-      const st = ins.responses?.[it.id]?.status || "na";
+      const stRaw = ins.responses?.[it.id]?.result
+        ?? ins.responses?.[it.id]?.status
+        ?? ins.answers?.[it.id]?.status
+        ?? "na";
+      const st = (""+stRaw).toLowerCase();
       if(st==="pass") pass++; else if(st==="fail") fail++; else na++;
     }
   }
@@ -589,9 +595,11 @@ async function generateProfessionalPdf(ins, template){
     y += 6;
 
     for(const item of (sec.items||[])){
-      const r = ins.responses?.[item.id] || {status:"na", notes:"", photos:[]};
-      const st = r.status || "na";
-      const itemNotes = safeText(r.notes||"").trim();
+      // Stored fields (new): result (pass/fail/na), comment (notes), photos (array)
+      // Stored fields (older): status, notes
+      const r = ins.responses?.[item.id] || ins.answers?.[item.id] || {result:"na", comment:"", photos:["","","",""]};
+      const st = ((r.result ?? r.status ?? "na") + "").toLowerCase();
+      const itemNotes = safeText((r.comment ?? r.notes) || "").trim();
       const noteLines = itemNotes ? splitLines(pdf, itemNotes, contentW-14) : ["-"];
       const noteH = Math.max(6, noteLines.length*4.2);
 
